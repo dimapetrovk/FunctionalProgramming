@@ -20,7 +20,7 @@
 -- Table `univsoftsystem`.`author`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS author (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   firstname VARCHAR(45) NULL,
   lastname VARCHAR(45) NULL,
   company VARCHAR(45) NULL,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS author (
 -- Table `univsoftsystem`.`program`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS program (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name VARCHAR(45) NULL,
   annotation VARCHAR(45) NULL,
   version VARCHAR(45) NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS program (
 -- Table `univsoftsystem`.`terms_of_use`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS terms_of_use (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name VARCHAR(45) NULL,
   condition VARCHAR(45) NULL,
   start_date TIMESTAMP(0) NULL,
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS terms_of_use (
 -- Table `univsoftsystem`.`type`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS type (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   name VARCHAR(45) NULL,
   description VARCHAR(45) NULL,
   PRIMARY KEY (id))
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS type (
 -- Table `univsoftsystem`.`usage`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS usage (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   user_id INT NULL,
   program_id INT NULL,
   time TIMESTAMP(0) NULL,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS usage (
 -- Table `univsoftsystem`.`user`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
-  id INT NOT NULL,
+  id SERIAL NOT NULL,
   firstname VARCHAR(45) NULL,
   lastname VARCHAR(45) NULL,
   email VARCHAR(45) NULL,
