@@ -1,0 +1,206 @@
+(load "ltk/ltk.lisp")
+(in-package :ltk)
+
+
+(defclass Item()
+	(
+		(name :accessor it-name :initarg :iname)
+		(price :accessor it-price :initarg :iprice)
+	)
+)
+
+(defclass Accessory(Item)
+	()
+)
+
+(defclass Flower(Item)
+	(
+		(length :accessor fl-length :initarg :flength)
+		(color :accessor fl-color :initarg :fcolor)
+		(fresh :accessor fl-fresh :initarg :ffresh)
+	)
+)
+
+(defclass Orchid(Flower)
+	()
+)
+
+(defclass Rose(Flower)
+	()
+)
+
+(defclass Tulip(Flower)
+	()
+)
+
+(defclass Chamomile(Flower)
+	()
+)
+
+(defmethod print-object ((v Flower) out)
+   (format out "~s fresh:~s len:~s, " (it-name v) (fl-fresh v) (fl-length v)))
+
+
+(defclass Bouquet()
+	(
+	    (flowers :initform '() :accessor flower-lst)
+	    (accessories :initform '() :accessor accessory-lst)
+	)
+)
+
+(defmethod add-flower ((s Bouquet) (v Flower))
+	(setf (flower-lst s) (cons v (flower-lst s)))
+)
+
+(defmethod add-accessory ((s Bouquet) (v Accessory))
+	(setf (accessory-lst s) (cons v (accessory-lst s)))
+)
+
+(defun sum-flowers-price (flowers)
+	(cond
+		((null flowers) 0)
+		(T(+ (it-price (car flowers)) (sum-flowers-price (cdr flowers))))
+	)
+)
+
+(defun sum-accessories-price (accessories)
+	(cond
+		((null accessories) 0)
+		(T(+ (it-price (car accessories)) (sum-accessories-price (cdr accessories))))
+	)
+)
+
+(defmethod get-total-price ((s Bouquet))
+	(+ (sum-flowers-price (flower-lst s)) (sum-accessories-price (accessory-lst s)))
+)
+
+(defun make-bouquet()
+	(defparameter s (make-instance 'Bouquet))
+	s
+)
+
+(defmethod flower-with-length-inner (flowers len-min len-max)
+	(cond
+		((null flowers) NIL)
+		((and (>= (fl-length (car flowers)) len-min)(<= (fl-length (car flowers)) len-max))
+			 (cons (car flowers) (flower-with-length-inner (cdr flowers) len-min len-max))
+		)
+		(T(flower-with-length-inner (cdr flowers) len-min len-max))
+	)
+)
+
+(defmethod flower-with-length ((s Bouquet) len-min len-max)
+	(flower-with-length-inner (flower-lst s) len-min len-max)
+)
+
+(defun gui() 
+	(with-ltk()
+		(setq sld (make-instance 'Bouquet))
+		(let* (
+				(frame_ (make-instance 'frame))
+	            (text-label-rose   (make-instance 'label :master frame_ :text "rose : "))
+	            (text-label-orchid    (make-instance 'label :master frame_ :text "orchid : "))
+	            (text-label-tulip   (make-instance 'label :master frame_ :text "tulip : "))
+	            (text-label-chamomile (make-instance 'label :master frame_ :text "chamomile : "))
+	            (text-label-string (make-instance 'label :master frame_ :text "string : "))
+	            (text-label-price (make-instance 'label :master frame_ :text "Total price"))
+	            (text-label-sorted   (make-instance 'label :master frame_ :text "<< Sorted bouquet >>"))
+	            (text-label-bounds   (make-instance 'label :master frame_ :text "<< Length bounds >>"))
+	            (text-field-low      (make-instance 'entry :master frame_ :text "From"))
+	            (text-field-high     (make-instance 'entry :master frame_ :text "To"))
+
+	            (btn-rose (make-instance 'button :master frame_ :text "Rose"
+                            	:command (lambda() 
+                            			 	(add-flower sld (make-instance 'Rose :iname "Rose" :flength 35 :fcolor "red" :iprice 8 :ffresh 2))
+                            			 	(setf (text text-label-rose) (concatenate 'string (text text-label-rose) "+"))
+                                         )
+                            )
+	            )
+	            (btn-orchid (make-instance 'button :master frame_ :text "Orchid"
+                            	:command (lambda() 
+                            			 	(add-flower sld (make-instance 'Orchid :iname "Orchid" :flength 30 :fcolor "pink" :iprice 10 :ffresh 3))
+                            			 	(setf (text text-label-orchid) (concatenate 'string (text text-label-orchid) "+"))
+                                         )
+                            )
+	            )
+	            (btn-tulip (make-instance 'button :master frame_ :text "Tulip"
+                            	:command (lambda() 
+                            			 	(add-flower sld (make-instance 'Tulip :iname "Tulip" :flength 20 :fcolor "purple" :iprice 15 :ffresh 3))
+                            			 	(setf (text text-label-tulip) (concatenate 'string (text text-label-tulip) "+"))
+                                         )
+                            )
+	            )
+	            (btn-chamomile (make-instance 'button :master frame_ :text "Chamomile"
+                            	:command (lambda() 
+                            			 	(add-flower sld (make-instance 'Chamomile :iname "Chamomile" :flength 15 :fcolor "white" :iprice 12 :ffresh 1))
+                            			 	(setf (text text-label-chamomile) (concatenate 'string (text text-label-chamomile) "+"))
+                                         )
+                            )
+	            )
+	            (btn-string (make-instance 'button :master frame_ :text "String"
+                            	:command (lambda()
+                            			 	(add-accessory sld (make-instance 'Accessory :iname "String" :iprice 12))
+                            			 	(setf (text text-label-string) (concatenate 'string (text text-label-string) "+"))
+                                         )
+                            )
+	            )
+	            (btn-uncook (make-instance 'button :master frame_ :text "Uncook"
+                            	:command (lambda()
+                            				(setq sld (make-instance 'Bouquet))
+
+                            			 	(setf (text text-label-rose) "rose : ")
+                            			 	(setf (text text-label-orchid) "orchid : ")
+                            			 	(setf (text text-label-tulip) "tulip : ")
+                            			 	(setf (text text-label-chamomile) "chamomile : ")
+                            			 	(setf (text text-label-string) "string : ")
+                            			 	(setf (text text-label-price) "Total calority")
+                            			 	(setf (text text-label-sorted) "<< Sorted bouquet >>")
+                            			 	(setf (text text-label-bounds) "<< Length bounds >>")
+                                         )
+                            )
+	            )
+	            (btn-price (make-instance 'button :master frame_ :text "Total price"
+                            	:command (lambda()
+                            				(setf (text text-label-price) (concatenate 'string "Total price : " (write-to-string (get-total-price sld))))
+                                         )
+                            )
+	            )
+	            (btn-sorted (make-instance 'button :master frame_ :text "Sort!"
+	            				:command (lambda()
+	            							(setf (text text-label-sorted) (sort (flower-lst sld) #'< :key #'fl-fresh))
+	            						 )
+	            			)
+	            )
+	            (btn-bounds (make-instance 'button :master frame_ :text "Bounds!"
+	            				:command (lambda()
+	            							(setf (text text-label-bounds) (flower-with-length sld (read-from-string (text text-field-low)) (read-from-string (text text-field-high))))
+	            						 )
+	            			)
+	            )
+            )
+			(pack frame_ :padx 75 :pady 75)
+	        (pack text-label-rose :padx 20 :pady :3)
+	        (pack text-label-orchid :padx 20 :pady :3)
+	        (pack text-label-tulip :padx 20 :pady :3)
+	        (pack text-label-chamomile :padx 20 :pady :3)
+	        (pack text-label-string :padx 20 :pady :3)
+	        (pack text-label-price :padx 20 :pady :3)
+	        (pack text-label-sorted :padx 20 :pady :3)
+	        (pack text-label-bounds :padx 20 :pady :3)
+	        (pack text-field-low :padx 20 :pady :3)
+	        (pack text-field-high :padx 20 :pady :3)
+	        (pack btn-rose :side :left)
+	        (pack btn-orchid :side :left)
+	        (pack btn-tulip :side :left)
+	        (pack btn-chamomile :side :left)
+	        (pack btn-string :side :left)
+	        (pack btn-uncook :side :left)
+	        (pack btn-price :side :left)
+	        (pack btn-sorted :side :left)
+	        (pack btn-bounds :side :left)
+	        ()
+		)
+	)
+)
+
+(gui)
